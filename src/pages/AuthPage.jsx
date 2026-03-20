@@ -2,6 +2,18 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const inputStyle = {
+  width: '100%',
+  padding: '0.8rem 1rem',
+  borderRadius: 'var(--radius-sm)',
+  border: '1px solid var(--border-dark)',
+  background: 'var(--navy-card)',
+  color: 'var(--text-white)',
+  fontSize: '1rem',
+  outline: 'none',
+  transition: 'var(--transition)',
+}
+
 export default function AuthPage() {
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
@@ -43,31 +55,29 @@ export default function AuthPage() {
     setLoading(false)
   }
 
-  const inputStyle = {
-    width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
-    border: '1px solid var(--border)', fontSize: '1rem', outline: 'none',
-  }
-
   return (
-    <div style={{
-      maxWidth: '420px', margin: '0 auto', padding: '3rem 1rem',
-    }} className="fade-in">
-      <h1 style={{ textAlign: 'center', fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>
+    <div style={{ maxWidth: '420px', margin: '0 auto', padding: '4rem 1rem' }} className="fade-in">
+      <h1 style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 900, marginBottom: '2.5rem' }}>
         {tab === 'login' ? 'התחברות' : 'הרשמה'}
       </h1>
 
       <div style={{
-        display: 'flex', marginBottom: '1.5rem', background: 'var(--bg)',
-        borderRadius: 'var(--radius-sm)', padding: '4px',
+        display: 'flex',
+        marginBottom: '1.5rem',
+        background: 'var(--navy)',
+        borderRadius: 'var(--radius-pill)',
+        padding: '4px',
+        border: '1px solid var(--border-dark)',
       }}>
         {['login', 'register'].map((t) => (
           <button key={t} onClick={() => { setTab(t); setError('') }} style={{
-            flex: 1, padding: '0.6rem', borderRadius: 'var(--radius-sm)',
-            background: tab === t ? 'white' : 'transparent',
-            color: tab === t ? 'var(--primary)' : 'var(--text-secondary)',
-            fontWeight: tab === t ? 600 : 400, fontSize: '0.95rem',
-            boxShadow: tab === t ? 'var(--shadow-sm)' : 'none',
-            transition: 'var(--transition)',
+            flex: 1,
+            padding: '0.6rem',
+            borderRadius: 'var(--radius-pill)',
+            background: tab === t ? 'var(--cyan)' : 'transparent',
+            color: tab === t ? 'var(--navy)' : 'var(--text-muted)',
+            fontWeight: tab === t ? 700 : 400,
+            fontSize: '0.95rem',
           }}>
             {t === 'login' ? 'התחברות' : 'הרשמה'}
           </button>
@@ -75,47 +85,63 @@ export default function AuthPage() {
       </div>
 
       <form onSubmit={handleSubmit} style={{
-        background: 'white', padding: '2rem', borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '1rem',
+        background: 'var(--navy)',
+        padding: '2rem',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border-dark)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.25rem',
       }}>
         {tab === 'register' && (
           <div>
-            <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.3rem', display: 'block' }}>שם מלא</label>
-            <input
-              type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
+            <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.4rem', display: 'block', color: 'var(--text-light)' }}>שם מלא</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
               placeholder="ישראל ישראלי" style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = 'var(--cyan)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border-dark)'}
             />
           </div>
         )}
         <div>
-          <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.3rem', display: 'block' }}>אימייל</label>
-          <input
-            type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+          <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.4rem', display: 'block', color: 'var(--text-light)' }}>אימייל</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
             placeholder="email@example.com" style={{ ...inputStyle, direction: 'ltr', textAlign: 'right' }}
+            onFocus={(e) => e.target.style.borderColor = 'var(--cyan)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border-dark)'}
           />
         </div>
         <div>
-          <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.3rem', display: 'block' }}>סיסמה</label>
-          <input
-            type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+          <label style={{ fontWeight: 500, fontSize: '0.9rem', marginBottom: '0.4rem', display: 'block', color: 'var(--text-light)' }}>סיסמה</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
             placeholder="לפחות 6 תווים" style={{ ...inputStyle, direction: 'ltr', textAlign: 'right' }}
+            onFocus={(e) => e.target.style.borderColor = 'var(--cyan)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border-dark)'}
           />
         </div>
 
         {error && (
           <div style={{
-            background: '#FEF2F2', border: '1px solid var(--error)', color: '#991B1B',
-            padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#FCA5A5',
+            padding: '0.6rem 0.8rem',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '0.9rem',
           }}>
             {error}
           </div>
         )}
 
         <button type="submit" disabled={loading} style={{
-          background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-          color: 'white', padding: '0.85rem', borderRadius: 'var(--radius-sm)',
-          fontSize: '1rem', fontWeight: 700, opacity: loading ? 0.7 : 1,
-          transition: 'var(--transition)', marginTop: '0.5rem',
+          background: loading ? 'var(--charcoal)' : 'var(--cyan)',
+          color: loading ? 'var(--text-muted)' : 'var(--navy)',
+          padding: '0.85rem',
+          borderRadius: 'var(--radius-pill)',
+          fontSize: '1rem',
+          fontWeight: 800,
+          marginTop: '0.5rem',
+          boxShadow: loading ? 'none' : 'var(--shadow-cyan)',
         }}>
           {loading ? 'טוען...' : tab === 'login' ? 'התחבר' : 'הירשם'}
         </button>

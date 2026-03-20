@@ -23,6 +23,20 @@ function incrementFreeTierUsage() {
   return usage
 }
 
+const inputStyle = {
+  width: '100%',
+  padding: '0.85rem 1rem',
+  borderRadius: 'var(--radius-sm)',
+  border: '1px solid var(--border-dark)',
+  background: 'var(--navy-card)',
+  color: 'var(--text-white)',
+  fontSize: '1rem',
+  resize: 'vertical',
+  lineHeight: 1.7,
+  outline: 'none',
+  transition: 'var(--transition)',
+}
+
 export default function FreeToolPage() {
   const [reviewText, setReviewText] = useState('')
   const [tone, setTone] = useState('professional')
@@ -39,7 +53,6 @@ export default function FreeToolPage() {
       setError('נא להזין את טקסט הביקורת')
       return
     }
-
     if (remaining <= 0) {
       setError('ניצלת את כל השימושים החינמיים החודשיים. הירשם לחשבון לשימוש נוסף!')
       return
@@ -62,41 +75,47 @@ export default function FreeToolPage() {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(response)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Fallback
       const ta = document.createElement('textarea')
       ta.value = response
       document.body.appendChild(ta)
       ta.select()
       document.execCommand('copy')
       document.body.removeChild(ta)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
     }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '2rem 1rem' }} className="fade-in">
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-          כלי חינמי - מענה AI לביקורות
+    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '3rem 1rem' }} className="fade-in">
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.5rem' }}>
+          כלי חינמי - מענה <span style={{ color: 'var(--cyan)' }}>AI</span> לביקורות
         </h1>
-        <p style={{ color: 'var(--text-secondary)' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem' }}>
           הדביקו ביקורת מגוגל, בחרו טון, וקבלו תגובה מקצועית בעברית תוך שניות
         </p>
-        <p style={{ color: 'var(--text-light)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+        <p style={{
+          color: remaining > 0 ? 'var(--text-muted)' : 'var(--error)',
+          fontSize: '0.85rem',
+          marginTop: '0.75rem',
+        }}>
           {remaining > 0 ? `נותרו ${remaining} שימושים חינמיים החודש` : 'ניצלת את כל השימושים החודשיים'}
         </p>
       </div>
 
       <div style={{
-        background: 'white', borderRadius: 'var(--radius)', padding: '2rem',
-        boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '1.5rem',
+        background: 'var(--navy)',
+        borderRadius: 'var(--radius)',
+        padding: '2rem',
+        border: '1px solid var(--border-dark)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
       }}>
         <div>
-          <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block' }}>
+          <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>
             טקסט הביקורת
           </label>
           <textarea
@@ -104,18 +123,14 @@ export default function FreeToolPage() {
             onChange={(e) => setReviewText(e.target.value)}
             placeholder="הדביקו כאן את הביקורת מגוגל..."
             rows={4}
-            style={{
-              width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border)', fontSize: '1rem', resize: 'vertical',
-              lineHeight: 1.6, outline: 'none', transition: 'var(--transition)',
-            }}
-            onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-            onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+            style={inputStyle}
+            onFocus={(e) => e.target.style.borderColor = 'var(--cyan)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border-dark)'}
           />
         </div>
 
         <div>
-          <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block' }}>
+          <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>
             טון התגובה
           </label>
           <ToneSelector value={tone} onChange={setTone} />
@@ -125,19 +140,26 @@ export default function FreeToolPage() {
           onClick={handleGenerate}
           disabled={loading || remaining <= 0}
           style={{
-            background: loading ? 'var(--text-light)' : 'linear-gradient(135deg, var(--primary), var(--secondary))',
-            color: 'white', padding: '0.9rem', borderRadius: 'var(--radius-sm)',
-            fontSize: '1.05rem', fontWeight: 700, transition: 'var(--transition)',
-            opacity: loading || remaining <= 0 ? 0.7 : 1,
+            background: loading || remaining <= 0 ? 'var(--charcoal)' : 'var(--cyan)',
+            color: loading || remaining <= 0 ? 'var(--text-muted)' : 'var(--navy)',
+            padding: '0.95rem',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: '1.05rem',
+            fontWeight: 800,
+            boxShadow: loading || remaining <= 0 ? 'none' : 'var(--shadow-cyan)',
           }}
         >
-          {loading ? 'יוצר תגובה...' : 'צור תגובה עם AI ✨'}
+          {loading ? 'יוצר תגובה...' : 'צור תגובה עם AI'}
         </button>
 
         {error && (
           <div style={{
-            background: '#FEF2F2', border: '1px solid var(--error)', color: '#991B1B',
-            padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#FCA5A5',
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '0.9rem',
           }}>
             {error}
           </div>
@@ -145,41 +167,55 @@ export default function FreeToolPage() {
 
         {response && (
           <div style={{
-            background: '#F0FDF4', border: '1px solid var(--success)', borderRadius: 'var(--radius)',
-            padding: '1.25rem', animation: 'fadeIn 0.3s ease',
+            background: 'rgba(19, 239, 245, 0.05)',
+            border: '1px solid rgba(19, 239, 245, 0.2)',
+            borderRadius: 'var(--radius)',
+            padding: '1.5rem',
+            animation: 'fadeIn 0.3s ease',
           }}>
             <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              marginBottom: '0.75rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem',
             }}>
-              <span style={{ fontWeight: 600, color: '#065F46' }}>התגובה שנוצרה:</span>
+              <span style={{ fontWeight: 600, color: 'var(--cyan)' }}>התגובה שנוצרה:</span>
               <button
                 onClick={handleCopy}
                 style={{
-                  background: copied ? 'var(--success)' : 'white', color: copied ? 'white' : 'var(--text)',
-                  padding: '0.4rem 1rem', borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 500,
-                  transition: 'var(--transition)',
+                  background: copied ? 'var(--success)' : 'var(--charcoal)',
+                  color: 'var(--text-white)',
+                  padding: '0.4rem 1.2rem',
+                  borderRadius: 'var(--radius-pill)',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
                 }}
               >
                 {copied ? 'הועתק! ✓' : 'העתק'}
               </button>
             </div>
-            <p style={{ color: '#1E293B', lineHeight: 1.8, fontSize: '1rem' }}>{response}</p>
+            <p style={{ color: 'var(--text-light)', lineHeight: 1.9, fontSize: '1rem' }}>{response}</p>
           </div>
         )}
       </div>
 
       {remaining <= 0 && (
         <div style={{
-          textAlign: 'center', marginTop: '1.5rem', padding: '1.5rem',
-          background: 'linear-gradient(135deg, rgba(77,150,255,0.08), rgba(124,58,237,0.08))',
+          textAlign: 'center',
+          marginTop: '2rem',
+          padding: '2rem',
+          background: 'var(--navy)',
+          border: '1px solid var(--border-dark)',
           borderRadius: 'var(--radius)',
         }}>
-          <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>רוצים עוד תגובות?</p>
+          <p style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '1.1rem' }}>רוצים עוד תגובות?</p>
           <a href="/auth" style={{
-            display: 'inline-block', background: 'var(--primary)', color: 'white',
-            padding: '0.6rem 1.5rem', borderRadius: 'var(--radius-sm)', fontWeight: 600,
+            display: 'inline-block',
+            background: 'var(--cyan)',
+            color: 'var(--navy)',
+            padding: '0.7rem 2rem',
+            borderRadius: 'var(--radius-pill)',
+            fontWeight: 800,
           }}>
             הירשמו עכשיו - חינם!
           </a>

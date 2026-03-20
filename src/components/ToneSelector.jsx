@@ -17,18 +17,22 @@ export default function ToneSelector({ value, onChange }) {
               flex: '1 1 140px',
               padding: '1rem',
               borderRadius: 'var(--radius)',
-              border: `2px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
-              background: selected ? 'rgba(77, 150, 255, 0.08)' : 'white',
+              border: `1px solid ${selected ? 'var(--cyan)' : 'var(--border-dark)'}`,
+              background: selected ? 'rgba(19, 239, 245, 0.08)' : 'var(--navy)',
               cursor: 'pointer',
               transition: 'var(--transition)',
               textAlign: 'center',
             }}
           >
             <div style={{ fontSize: '1.5rem', marginBottom: '0.3rem' }}>{tone.icon}</div>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', color: selected ? 'var(--primary)' : 'var(--text)' }}>
+            <div style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: selected ? 'var(--cyan)' : 'var(--text-white)',
+            }}>
               {tone.label}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
               {tone.desc}
             </div>
           </button>
