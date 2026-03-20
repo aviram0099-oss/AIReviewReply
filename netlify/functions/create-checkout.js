@@ -41,7 +41,3 @@ export default async (req) => {
     return Response.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }
-
-export const config = {
-  path: '/.netlify/functions/create-checkout',
-}
