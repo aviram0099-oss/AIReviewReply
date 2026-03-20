@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { useAuth } from '../context/AuthContext'
 import ToneSelector from '../components/ToneSelector'
 import LoadingSpinner from '../components/LoadingSpinner'
 
@@ -16,7 +18,9 @@ const inputStyle = {
 }
 
 export default function SettingsPage() {
-  const { profile, loadingProfile, updateProfile, getUsageInfo } = useApp()
+  const { profile, loadingProfile, updateProfile, getUsageInfo, showToast } = useApp()
+  const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [name, setName] = useState('')
   const [type, setType] = useState('')
   const [description, setDescription] = useState('')
@@ -34,6 +38,19 @@ export default function SettingsPage() {
       setGender(profile.preferences?.gender || 'male')
     }
   }, [profile])
+
+  // Handle Google connection callback
+  useEffect(() => {
+    const googleParam = searchParams.get('google')
+    if (googleParam === 'connected') {
+      showToast('חשבון Google חובר בהצלחה!', 'success')
+      updateProfile({ googleConnected: true })
+      setSearchParams({}, { replace: true })
+    } else if (googleParam === 'error') {
+      showToast('שגיאה בחיבור חשבון Google', 'error')
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams])
 
   async function handleSave() {
     setSaving(true)
@@ -87,6 +104,52 @@ export default function SettingsPage() {
             transition: 'width 0.3s ease',
             boxShadow: usage.used < usage.limit ? '0 0 8px var(--cyan-glow)' : 'none',
           }} />
+        </div>
+      </div>
+
+      {/* Google Business Connection */}
+      <div style={{
+        background: 'var(--navy)',
+        padding: '1.5rem',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border-dark)',
+        marginBottom: '1.5rem',
+      }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--cyan)' }}>חיבור Google Business</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+            חברו את חשבון Google Business כדי לסנכרן ביקורות ולפרסם תגובות ישירות
+          </p>
+          {profile?.googleConnected ? (
+            <span style={{
+              background: 'rgba(34, 197, 94, 0.15)',
+              color: '#4ade80',
+              padding: '0.5rem 1.2rem',
+              borderRadius: 'var(--radius-pill)',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+            }}>
+              מחובר ✓
+            </span>
+          ) : (
+            <a
+              href={`/.netlify/functions/google-auth?userId=${user?.uid}`}
+              style={{
+                background: 'var(--cyan)',
+                color: 'var(--navy)',
+                padding: '0.5rem 1.2rem',
+                borderRadius: 'var(--radius-pill)',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                textDecoration: 'none',
+                display: 'inline-block',
+                boxShadow: 'var(--shadow-cyan)',
+              }}
+            >
+              חבר חשבון Google
+            </a>
+          )}
         </div>
       </div>
 

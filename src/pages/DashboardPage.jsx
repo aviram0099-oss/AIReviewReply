@@ -20,7 +20,7 @@ const inputStyle = {
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { profile, loadingProfile, reviews, addReview, updateReview, deleteReview, getUsageInfo, showToast } = useApp()
+  const { profile, loadingProfile, reviews, addReview, updateReview, deleteReview, getUsageInfo, showToast, syncGoogleReviews, publishReply } = useApp()
   const [showAddForm, setShowAddForm] = useState(false)
   const [reviewerName, setReviewerName] = useState('')
   const [reviewText, setReviewText] = useState('')
@@ -28,6 +28,8 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState('all')
   const [generatingFor, setGeneratingFor] = useState(null)
   const [adding, setAdding] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [publishingId, setPublishingId] = useState(null)
 
   if (loadingProfile) return <LoadingSpinner />
 
@@ -65,6 +67,58 @@ export default function DashboardPage() {
       await updateReview(generatingFor.id, { response })
       setGeneratingFor(null)
     }
+  }
+
+  async function handleSyncGoogle() {
+    setSyncing(true)
+    try {
+      const newReviews = await syncGoogleReviews()
+      if (newReviews.length === 0) {
+        showToast('אין ביקורות חדשות לסנכרון', 'info')
+      } else {
+        showToast(`סונכרנו ${newReviews.length} ביקורות חדשות`, 'success')
+
+        // Auto-generate AI responses for reviews without responses
+        for (const review of newReviews) {
+          if (!review.response) {
+            try {
+              const genRes = await fetch('/.netlify/functions/generate-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  reviewText: review.reviewText,
+                  tone: profile?.preferences?.tone || 'professional',
+                  gender: profile?.preferences?.gender || 'male',
+                  businessProfile: profile?.businessProfile || {},
+                }),
+              })
+              if (genRes.ok) {
+                const data = await genRes.json()
+                if (data.response) {
+                  await updateReview(review.id, { response: data.response })
+                }
+              }
+            } catch (err) {
+              console.error('Auto-generate failed for review:', review.id, err)
+            }
+          }
+        }
+      }
+    } catch (err) {
+      showToast(err.message || 'שגיאה בסנכרון ביקורות מגוגל', 'error')
+    }
+    setSyncing(false)
+  }
+
+  async function handlePublishReply(review) {
+    setPublishingId(review.id)
+    try {
+      await publishReply(review.id, review)
+      showToast('התגובה פורסמה בגוגל בהצלחה!', 'success')
+    } catch (err) {
+      showToast(err.message || 'שגיאה בפרסום התגובה', 'error')
+    }
+    setPublishingId(null)
   }
 
   return (
@@ -139,16 +193,31 @@ export default function DashboardPage() {
         flexWrap: 'wrap',
         gap: '0.75rem',
       }}>
-        <button onClick={() => setShowAddForm(!showAddForm)} style={{
-          background: showAddForm ? 'var(--charcoal)' : 'var(--cyan)',
-          color: showAddForm ? 'var(--text-white)' : 'var(--navy)',
-          padding: '0.6rem 1.2rem',
-          borderRadius: 'var(--radius-pill)',
-          fontWeight: 700,
-          fontSize: '0.9rem',
-        }}>
-          {showAddForm ? 'ביטול' : '+ הוסף ביקורת'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button onClick={() => setShowAddForm(!showAddForm)} style={{
+            background: showAddForm ? 'var(--charcoal)' : 'var(--cyan)',
+            color: showAddForm ? 'var(--text-white)' : 'var(--navy)',
+            padding: '0.6rem 1.2rem',
+            borderRadius: 'var(--radius-pill)',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+          }}>
+            {showAddForm ? 'ביטול' : '+ הוסף ביקורת'}
+          </button>
+          {profile?.googleConnected && (
+            <button onClick={handleSyncGoogle} disabled={syncing} style={{
+              background: syncing ? 'var(--charcoal)' : 'transparent',
+              color: syncing ? 'var(--text-muted)' : 'var(--cyan)',
+              padding: '0.6rem 1.2rem',
+              borderRadius: 'var(--radius-pill)',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              border: '1px solid var(--cyan)',
+            }}>
+              {syncing ? 'מסנכרן...' : 'סנכרן ביקורות מגוגל'}
+            </button>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {[
             { id: 'all', label: 'הכל' },
@@ -233,12 +302,63 @@ export default function DashboardPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {filteredReviews.map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onGenerateResponse={(r) => setGeneratingFor(r)}
-              onDelete={deleteReview}
-            />
+            <div key={review.id}>
+              <ReviewCard
+                review={review}
+                onGenerateResponse={(r) => setGeneratingFor(r)}
+                onDelete={deleteReview}
+              />
+              {/* Source badge and publish button overlay */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '-0.5rem',
+                padding: '0 1.25rem 0.75rem',
+                background: 'var(--navy)',
+                borderRadius: '0 0 var(--radius) var(--radius)',
+                border: '1px solid var(--border-dark)',
+                borderTop: 'none',
+                marginTop: '-1px',
+              }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: 'var(--radius-pill)',
+                  background: review.source === 'google' ? 'rgba(66, 133, 244, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                  color: review.source === 'google' ? '#60a5fa' : 'var(--text-muted)',
+                  border: `1px solid ${review.source === 'google' ? 'rgba(66, 133, 244, 0.3)' : 'var(--border-dark)'}`,
+                }}>
+                  {review.source === 'google' ? 'גוגל' : 'ידני'}
+                </span>
+                {review.source === 'google' && review.response && !review.publishedToGoogle && (
+                  <button
+                    onClick={() => handlePublishReply(review)}
+                    disabled={publishingId === review.id}
+                    style={{
+                      background: publishingId === review.id ? 'var(--charcoal)' : 'var(--success)',
+                      color: 'white',
+                      padding: '0.35rem 0.8rem',
+                      borderRadius: 'var(--radius-pill)',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {publishingId === review.id ? 'מפרסם...' : 'אשר ופרסם'}
+                  </button>
+                )}
+                {review.source === 'google' && review.publishedToGoogle && (
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: '#4ade80',
+                    fontWeight: 600,
+                  }}>
+                    פורסם בגוגל ✓
+                  </span>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       )}

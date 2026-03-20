@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { doc, getDoc, updateDoc, collection, addDoc, getDocs, query, orderBy, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, orderBy, deleteDoc, where } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from './AuthContext'
 
@@ -119,6 +119,92 @@ export function AppProvider({ children }) {
     setTimeout(() => setToast(null), 3000)
   }, [])
 
+  async function syncGoogleReviews() {
+    if (!user || !db) return []
+    try {
+      const res = await fetch('/.netlify/functions/google-reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'שגיאה בסנכרון ביקורות')
+      }
+
+      const data = await res.json()
+      const googleReviews = data.reviews || []
+      const { accountId, locationId } = data
+
+      // Get existing reviews to check for duplicates
+      const existingReviews = reviews.filter((r) => r.googleReviewId)
+      const existingGoogleIds = new Set(existingReviews.map((r) => r.googleReviewId))
+
+      const newReviews = []
+      for (const gr of googleReviews) {
+        if (existingGoogleIds.has(gr.reviewId)) continue
+
+        // Convert star rating
+        const ratingMap = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 }
+        const rating = ratingMap[gr.starRating] || 5
+
+        const reviewData = {
+          reviewerName: gr.reviewer.displayName,
+          reviewText: gr.comment || '(ללא טקסט)',
+          rating,
+          response: gr.reviewReply?.comment || '',
+          googleReviewId: gr.reviewId,
+          googleAccountId: accountId,
+          googleLocationId: locationId,
+          source: 'google',
+          publishedToGoogle: !!gr.reviewReply,
+          createdAt: gr.createTime || new Date().toISOString(),
+        }
+
+        const docRef = await addDoc(collection(db, 'users', user.uid, 'reviews'), reviewData)
+        newReviews.push({ id: docRef.id, ...reviewData })
+      }
+
+      if (newReviews.length > 0) {
+        setReviews((prev) => [...newReviews, ...prev])
+      }
+
+      return newReviews
+    } catch (err) {
+      console.error('Sync Google reviews error:', err)
+      throw err
+    }
+  }
+
+  async function publishReply(reviewId, reviewData) {
+    if (!user || !db) return
+    try {
+      const res = await fetch('/.netlify/functions/google-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          accountId: reviewData.googleAccountId,
+          locationId: reviewData.googleLocationId,
+          reviewId: reviewData.googleReviewId,
+          comment: reviewData.response,
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'שגיאה בפרסום התגובה')
+      }
+
+      await updateReview(reviewId, { publishedToGoogle: true })
+      return true
+    } catch (err) {
+      console.error('Publish reply error:', err)
+      throw err
+    }
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -132,6 +218,8 @@ export function AppProvider({ children }) {
         incrementUsage,
         getUsageInfo,
         loadReviews,
+        syncGoogleReviews,
+        publishReply,
         toast,
         showToast,
       }}
