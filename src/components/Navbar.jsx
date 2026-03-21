@@ -65,6 +65,7 @@ export default function Navbar() {
       }}>
         <Link to="/free-tool" style={linkStyle('/free-tool')}>כלי חינמי</Link>
         <Link to="/pricing" style={linkStyle('/pricing')}>מחירים</Link>
+        <Link to="/guide" style={linkStyle('/guide')}>מדריך</Link>
         {user ? (
           <>
             <Link to="/dashboard" style={linkStyle('/dashboard')}>לוח בקרה</Link>

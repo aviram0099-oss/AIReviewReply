@@ -297,6 +297,29 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Guide CTA */}
+      <section style={{ padding: '3rem 2rem' }}>
+        <div style={{
+          maxWidth: '800px', margin: '0 auto', textAlign: 'center',
+          background: 'var(--navy)', borderRadius: 'var(--radius)',
+          border: '1px solid var(--border-dark)', padding: '2.5rem 2rem',
+        }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            רוצים ללמוד עוד?
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+            קראו את המדריך המלא שלנו לניהול ביקורות גוגל - כולל דוגמאות, טיפים, ונתונים עדכניים מ-2026
+          </p>
+          <Link to="/guide" style={{
+            display: 'inline-block', background: 'transparent', color: 'var(--cyan)',
+            padding: '0.7rem 2rem', borderRadius: 'var(--radius-pill)', fontWeight: 700,
+            border: '1px solid var(--cyan)', fontSize: '0.95rem',
+          }}>
+            למדריך המלא
+          </Link>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section style={{ padding: '5rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{

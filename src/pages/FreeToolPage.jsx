@@ -159,9 +159,12 @@ export default function FreeToolPage() {
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8, marginBottom: '1rem' }}>
           עסקים שמגיבים לביקורות מרוויחים בממוצע 35% יותר מאלה שלא מגיבים (ABMatic 2025). לקוחות מוציאים 48% יותר כסף בעסקים שמשקיעים במענה לביקורות. יתרה מכך, מחקרים מראים שביקורת שלילית שמקבלת מענה מקצועי ואמפתי יכולה להעלות את אחוזי ההמרה ב-85%.
         </p>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8, marginBottom: '1rem' }}>
           הבעיה? עסקים מבזבזים בממוצע 4 שעות בחודש על כתיבת תגובות, וזמן המענה הממוצע עומד על 8.8 ימים. עם AIReviewReply, תגובה מקצועית בעברית מוכנה תוך שניות - ב-10% מהעלות של כתיבה ידנית.
         </p>
+        <a href="/guide" style={{ color: 'var(--cyan)', fontSize: '0.9rem', fontWeight: 600 }}>
+          קראו את המדריך המלא לניהול ביקורות גוגל &larr;
+        </a>
       </section>
 
       <AdBanner variant="article" style={{ marginTop: '1.5rem' }} />

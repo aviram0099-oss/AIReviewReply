@@ -14,6 +14,7 @@ const FreeToolPage = lazy(() => import('./pages/FreeToolPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
+const GuidePage = lazy(() => import('./pages/GuidePage'))
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -35,6 +36,7 @@ function AppInner() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/free-tool" element={<FreeToolPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/guide" element={<GuidePage />} />
             <Route path="/dashboard" element={
               <ProtectedRoute><DashboardPage /></ProtectedRoute>
             } />
