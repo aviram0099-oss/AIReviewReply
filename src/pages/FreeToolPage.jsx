@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ToneSelector from '../components/ToneSelector'
+import AdBanner from '../components/AdBanner'
 import { generateResponse } from '../api/generate'
 
 const FREE_LIMIT = 3
@@ -24,17 +25,10 @@ function incrementFreeTierUsage() {
 }
 
 const inputStyle = {
-  width: '100%',
-  padding: '0.85rem 1rem',
-  borderRadius: 'var(--radius-sm)',
-  border: '1px solid var(--border-dark)',
-  background: 'var(--navy-card)',
-  color: 'var(--text-white)',
-  fontSize: '1rem',
-  resize: 'vertical',
-  lineHeight: 1.7,
-  outline: 'none',
-  transition: 'var(--transition)',
+  width: '100%', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)',
+  border: '1px solid var(--border-dark)', background: 'var(--navy-card)',
+  color: 'var(--text-white)', fontSize: '1rem', resize: 'vertical',
+  lineHeight: 1.7, outline: 'none', transition: 'var(--transition)',
 }
 
 export default function FreeToolPage() {
@@ -49,42 +43,23 @@ export default function FreeToolPage() {
   const remaining = FREE_LIMIT - usage.count
 
   async function handleGenerate() {
-    if (!reviewText.trim()) {
-      setError('נא להזין את טקסט הביקורת')
-      return
-    }
-    if (remaining <= 0) {
-      setError('ניצלת את כל השימושים החינמיים החודשיים. הירשם לחשבון לשימוש נוסף!')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    setResponse('')
-
+    if (!reviewText.trim()) { setError('נא להזין את טקסט הביקורת'); return }
+    if (remaining <= 0) { setError('ניצלת את כל השימושים החינמיים החודשיים. הירשם לחשבון לשימוש נוסף.'); return }
+    setLoading(true); setError(''); setResponse('')
     try {
       const result = await generateResponse({ reviewText, tone, gender: 'male' })
       setResponse(result)
       incrementFreeTierUsage()
-    } catch (err) {
-      setError(err.message || 'שגיאה ביצירת תגובה')
-    }
+    } catch (err) { setError(err.message || 'שגיאה ביצירת תגובה') }
     setLoading(false)
   }
 
   async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(response)
-    } catch {
-      const ta = document.createElement('textarea')
-      ta.value = response
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
+    try { await navigator.clipboard.writeText(response) } catch {
+      const ta = document.createElement('textarea'); ta.value = response
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
     }
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -96,102 +71,59 @@ export default function FreeToolPage() {
         <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem' }}>
           הדביקו ביקורת מגוגל, בחרו טון, וקבלו תגובה מקצועית בעברית תוך שניות
         </p>
-        <p style={{
-          color: remaining > 0 ? 'var(--text-muted)' : 'var(--error)',
-          fontSize: '0.85rem',
-          marginTop: '0.75rem',
-        }}>
+        <p style={{ color: remaining > 0 ? 'var(--text-muted)' : 'var(--error)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
           {remaining > 0 ? `נותרו ${remaining} שימושים חינמיים החודש` : 'ניצלת את כל השימושים החודשיים'}
         </p>
       </div>
 
       <div style={{
-        background: 'var(--navy)',
-        borderRadius: 'var(--radius)',
-        padding: '2rem',
-        border: '1px solid var(--border-dark)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
+        background: 'var(--navy)', borderRadius: 'var(--radius)', padding: '2rem',
+        border: '1px solid var(--border-dark)', display: 'flex', flexDirection: 'column', gap: '1.5rem',
       }}>
         <div>
           <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>
             טקסט הביקורת
           </label>
-          <textarea
-            value={reviewText}
-            onChange={(e) => setReviewText(e.target.value)}
-            placeholder="הדביקו כאן את הביקורת מגוגל..."
-            rows={4}
-            style={inputStyle}
+          <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)}
+            placeholder="הדביקו כאן את הביקורת מגוגל..." rows={4} style={inputStyle}
             onFocus={(e) => e.target.style.borderColor = 'var(--cyan)'}
             onBlur={(e) => e.target.style.borderColor = 'var(--border-dark)'}
           />
         </div>
-
         <div>
           <label style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>
             טון התגובה
           </label>
           <ToneSelector value={tone} onChange={setTone} />
         </div>
-
-        <button
-          onClick={handleGenerate}
-          disabled={loading || remaining <= 0}
-          style={{
-            background: loading || remaining <= 0 ? 'var(--charcoal)' : 'var(--cyan)',
-            color: loading || remaining <= 0 ? 'var(--text-muted)' : 'var(--navy)',
-            padding: '0.95rem',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '1.05rem',
-            fontWeight: 800,
-            boxShadow: loading || remaining <= 0 ? 'none' : 'var(--shadow-cyan)',
-          }}
-        >
-          {loading ? 'יוצר תגובה...' : 'צור תגובה עם AI'}
+        <button onClick={handleGenerate} disabled={loading || remaining <= 0} style={{
+          background: loading || remaining <= 0 ? 'var(--charcoal)' : 'var(--cyan)',
+          color: loading || remaining <= 0 ? 'var(--text-muted)' : 'var(--navy)',
+          padding: '0.95rem', borderRadius: 'var(--radius-pill)', fontSize: '1.05rem', fontWeight: 800,
+          boxShadow: loading || remaining <= 0 ? 'none' : 'var(--shadow-cyan)',
+        }}>
+          {loading ? 'יוצר תגובה...' : 'צור תגובה'}
         </button>
 
         {error && (
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#FCA5A5',
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '0.9rem',
-          }}>
-            {error}
-          </div>
+            background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#FCA5A5', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem',
+          }}>{error}</div>
         )}
 
         {response && (
           <div style={{
-            background: 'rgba(19, 239, 245, 0.05)',
-            border: '1px solid rgba(19, 239, 245, 0.2)',
-            borderRadius: 'var(--radius)',
-            padding: '1.5rem',
-            animation: 'fadeIn 0.3s ease',
+            background: 'rgba(19, 239, 245, 0.05)', border: '1px solid rgba(19, 239, 245, 0.2)',
+            borderRadius: 'var(--radius)', padding: '1.5rem', animation: 'fadeIn 0.3s ease',
           }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1rem',
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontWeight: 600, color: 'var(--cyan)' }}>התגובה שנוצרה:</span>
-              <button
-                onClick={handleCopy}
-                style={{
-                  background: copied ? 'var(--success)' : 'var(--charcoal)',
-                  color: 'var(--text-white)',
-                  padding: '0.4rem 1.2rem',
-                  borderRadius: 'var(--radius-pill)',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                }}
-              >
-                {copied ? 'הועתק! ✓' : 'העתק'}
+              <button onClick={handleCopy} style={{
+                background: copied ? 'var(--success)' : 'var(--charcoal)', color: 'var(--text-white)',
+                padding: '0.4rem 1.2rem', borderRadius: 'var(--radius-pill)', fontSize: '0.85rem', fontWeight: 600,
+              }}>
+                {copied ? 'הועתק' : 'העתק'}
               </button>
             </div>
             <p style={{ color: 'var(--text-light)', lineHeight: 1.9, fontSize: '1rem' }}>{response}</p>
@@ -199,28 +131,40 @@ export default function FreeToolPage() {
         )}
       </div>
 
+      <AdBanner variant="inline" style={{ marginTop: '2rem' }} />
+
       {remaining <= 0 && (
         <div style={{
-          textAlign: 'center',
-          marginTop: '2rem',
-          padding: '2rem',
-          background: 'var(--navy)',
-          border: '1px solid var(--border-dark)',
-          borderRadius: 'var(--radius)',
+          textAlign: 'center', marginTop: '1.5rem', padding: '2rem',
+          background: 'var(--navy)', border: '1px solid var(--border-dark)', borderRadius: 'var(--radius)',
         }}>
           <p style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '1.1rem' }}>רוצים עוד תגובות?</p>
           <a href="/auth" style={{
-            display: 'inline-block',
-            background: 'var(--cyan)',
-            color: 'var(--navy)',
-            padding: '0.7rem 2rem',
-            borderRadius: 'var(--radius-pill)',
-            fontWeight: 800,
+            display: 'inline-block', background: 'var(--cyan)', color: 'var(--navy)',
+            padding: '0.7rem 2rem', borderRadius: 'var(--radius-pill)', fontWeight: 800,
           }}>
-            הירשמו עכשיו - חינם!
+            הירשמו עכשיו - חינם
           </a>
         </div>
       )}
+
+      {/* SEO Content Block */}
+      <section style={{ marginTop: '3rem', padding: '2rem', background: 'var(--navy)', borderRadius: 'var(--radius)', border: '1px solid var(--border-dark)' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-white)' }}>
+          למה חשוב להגיב לביקורות גוגל?
+        </h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8, marginBottom: '1rem' }}>
+          מחקר של BrightLocal משנת 2026 מראה ש-93% מהצרכנים קוראים ביקורות אונליין לפני שהם מחליטים לרכוש מוצר או שירות. בישראל, כאשר 98% מהחיפושים מתבצעים דרך גוגל, הביקורות הופכות לנכס העסקי החשוב ביותר שלכם.
+        </p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8, marginBottom: '1rem' }}>
+          עסקים שמגיבים לביקורות מרוויחים בממוצע 35% יותר מאלה שלא מגיבים (ABMatic 2025). לקוחות מוציאים 48% יותר כסף בעסקים שמשקיעים במענה לביקורות. יתרה מכך, מחקרים מראים שביקורת שלילית שמקבלת מענה מקצועי ואמפתי יכולה להעלות את אחוזי ההמרה ב-85%.
+        </p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+          הבעיה? עסקים מבזבזים בממוצע 4 שעות בחודש על כתיבת תגובות, וזמן המענה הממוצע עומד על 8.8 ימים. עם AIReviewReply, תגובה מקצועית בעברית מוכנה תוך שניות - ב-10% מהעלות של כתיבה ידנית.
+        </p>
+      </section>
+
+      <AdBanner variant="article" style={{ marginTop: '1.5rem' }} />
     </div>
   )
 }

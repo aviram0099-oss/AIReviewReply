@@ -1,7 +1,7 @@
 const TONES = [
-  { id: 'friendly', label: 'ידידותי', icon: '😊', desc: 'חם ונגיש, אימוג׳י מותר' },
-  { id: 'professional', label: 'מקצועי', icon: '💼', desc: 'רשמי ומכובד' },
-  { id: 'apologetic', label: 'התנצלותי', icon: '🙏', desc: 'אמפתי, הצעת פתרון' },
+  { id: 'friendly', label: 'ידידותי', icon: 'F', desc: 'חם ונגיש, שפה קלילה' },
+  { id: 'professional', label: 'מקצועי', icon: 'P', desc: 'רשמי ומכובד' },
+  { id: 'apologetic', label: 'התנצלותי', icon: 'A', desc: 'אמפתי, הצעת פתרון' },
 ]
 
 export default function ToneSelector({ value, onChange }) {
@@ -24,7 +24,13 @@ export default function ToneSelector({ value, onChange }) {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '1.5rem', marginBottom: '0.3rem' }}>{tone.icon}</div>
+            <div style={{
+              width: '2rem', height: '2rem', borderRadius: '50%', margin: '0 auto 0.3rem',
+              background: selected ? 'var(--cyan)' : 'var(--charcoal)',
+              color: selected ? 'var(--navy)' : 'var(--text-muted)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.85rem', fontWeight: 800,
+            }}>{tone.icon}</div>
             <div style={{
               fontWeight: 600,
               fontSize: '0.95rem',

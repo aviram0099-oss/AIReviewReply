@@ -269,7 +269,8 @@ export default function DashboardPage() {
               <button key={s} type="button" onClick={() => setRating(s)} style={{
                 background: 'none', fontSize: '1.3rem', padding: '0.2rem',
                 opacity: s <= rating ? 1 : 0.3,
-              }}>⭐</button>
+                color: s <= rating ? 'var(--cyan)' : 'var(--text-muted)',
+              }}>★</button>
             ))}
           </div>
           <button type="submit" disabled={adding} style={{
@@ -294,7 +295,7 @@ export default function DashboardPage() {
           borderRadius: 'var(--radius)',
           border: '1px solid var(--border-dark)',
         }}>
-          <p style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📋</p>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--cyan)', fontWeight: 900 }}>--</div>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem' }}>
             {reviews.length === 0 ? 'עדיין אין ביקורות. הוסיפו את הביקורת הראשונה!' : 'אין ביקורות בקטגוריה זו'}
           </p>

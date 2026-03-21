@@ -1,5 +1,5 @@
 export default function ReviewCard({ review, onGenerateResponse, onDelete }) {
-  const stars = '⭐'.repeat(review.rating || 0)
+  const rating = review.rating || 0
   const date = review.createdAt ? new Date(review.createdAt).toLocaleDateString('he-IL') : ''
 
   return (
@@ -13,7 +13,20 @@ export default function ReviewCard({ review, onGenerateResponse, onDelete }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
         <div>
           <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{review.reviewerName || 'לקוח אנונימי'}</div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{date} {stars && `| ${stars}`}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            {date}
+            {rating > 0 && (
+              <span style={{ display: 'inline-flex', gap: '2px', marginRight: '0.3rem' }}>
+                {[1,2,3,4,5].map(s => (
+                  <span key={s} style={{
+                    width: '10px', height: '10px', borderRadius: '2px',
+                    background: s <= rating ? 'var(--cyan)' : 'var(--charcoal)',
+                    display: 'inline-block',
+                  }} />
+                ))}
+              </span>
+            )}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {!review.response && onGenerateResponse && (

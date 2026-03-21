@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { loadStripe } from '@stripe/stripe-js'
+import AdBanner from '../components/AdBanner'
 
 const PLANS = [
   {
@@ -142,6 +143,36 @@ export default function PricingPage() {
       }}>
         כל החבילות כוללות ביטול בכל עת. ללא התחייבות ארוכת טווח.
       </div>
+
+      <AdBanner variant="inline" style={{ marginTop: '2rem' }} />
+
+      {/* ROI Section */}
+      <section style={{
+        marginTop: '3rem', padding: '2rem', background: 'var(--navy)',
+        borderRadius: 'var(--radius)', border: '1px solid var(--border-dark)',
+      }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-white)', textAlign: 'center' }}>
+          החזר ההשקעה שלכם
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          {[
+            { label: 'עלות כתיבת תגובה ידנית', value: '₪25-50', sub: 'לפי שכר ממוצע + זמן' },
+            { label: 'עלות תגובה עם AIReviewReply', value: '₪1.58', sub: 'בחבילת סטארטר' },
+            { label: 'חיסכון חודשי', value: 'עד ₪2,400', sub: 'על 50 תגובות בחודש' },
+          ].map((item, i) => (
+            <div key={i} style={{ textAlign: 'center', padding: '1.25rem', background: 'var(--dark)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-dark)' }}>
+              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--cyan)', marginBottom: '0.3rem' }}>{item.value}</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-light)', marginBottom: '0.2rem' }}>{item.label}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.sub}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.8, textAlign: 'center' }}>
+          מחקר של ABMatic (2025) מצא שעסקים שמגיבים לביקורות מרוויחים 35% יותר מאלה שלא מגיבים. לקוחות מוציאים 48% יותר כסף בעסקים שמשקיעים במענה לביקורות. בחבילת הסטארטר, כל תגובה עולה לכם פחות מ-2 שקלים - לעומת 25-50 שקלים בכתיבה ידנית.
+        </p>
+      </section>
+
+      <AdBanner variant="article" style={{ marginTop: '1.5rem' }} />
     </div>
   )
 }
